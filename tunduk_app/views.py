@@ -1,30 +1,34 @@
 from django.shortcuts import render
 import requests
 from xml.etree.ElementTree import fromstring, ElementTree
+from bs4 import BeautifulSoup
 
 # Create your views here.
 def index(request):
     return render(request, 'tunduk_app/index.html')
 
 def test_request(request):
-    Header = {'Content-type': 'application/xml; charset=UTF-8'}
+    Header = {'Content-type': 'text/xml; charset=UTF-8'}
     #data = open('request.xml')
-    #data = InitializeRequestForPermission()
-    data = test_method_zags()
+    data = InitializeRequestForPermission()
+    #data = test_method_zags()
     data = data.encode('utf-8')
     #response = requests.get('https://31.186.53.85', headers=Header, data=data, cert=('subsystemName.crt', 'subsystemName.key'))
     response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
     #response = requests.get('https://api.github.com')
     req = response.content
-    tree = ElementTree(fromstring(req))
-    root = tree.getroot()
+    #tree = ElementTree(fromstring(req))
+    #root = tree.getroot()
 
-    message = root.find('faultcode')
+    #message = root.find('Message')
     #message = message.text
     filename = 'response.xml'
     ff = open(filename, 'a')
-    ff.write(req.decode("utf-8"))
+    ff.write(req.decode('utf-8'))
     ff.close()
+
+    res = BeautifulSoup(req, 'xml')
+    message = res.find('Message').text
 
     return render(request, 'tunduk_app/response.html', {'response': message})
 

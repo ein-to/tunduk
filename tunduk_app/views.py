@@ -7,12 +7,29 @@ from bs4 import BeautifulSoup
 def index(request):
     return render(request, 'tunduk_app/index.html')
 
-def test_request(request):
+def send_request_template(request):
+    return render(request, 'tunduk_app/send_request_template.html')
+
+def send_request(request):
     Header = {'Content-type': 'text/xml; charset=UTF-8'}
     #data = open('request.xml')
-    data = InitializeRequestForPermission()
+    type_request = request.GET.get('type_request')
+    if type_request == '1':
+        pin = request.GET.get('pin')
+        phone_number = request.GET.get('phone_number')
+        birth_date = request.GET.get('birth_date')
+        issued_date = request.GET.get('issued_date')
+
+        data = InitializeRequestForPermission(pin, phone_number, birth_date, issued_date)
+        #data = data.encode('utf-8')
+        filename = 'result.xml'
+        f = open(filename, 'a')
+        f.write(str(data))
+        f.close()
+
+    #data = InitializeRequestForPermission()
     #data = test_method_zags()
-    data = data.encode('utf-8')
+    #data = data.encode('utf-8')
     #response = requests.get('https://31.186.53.85', headers=Header, data=data, cert=('subsystemName.crt', 'subsystemName.key'))
     response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
     #response = requests.get('https://api.github.com')
@@ -27,15 +44,16 @@ def test_request(request):
     ff.write(req.decode('utf-8'))
     ff.close()
 
-    res = BeautifulSoup(req, 'xml')
+    res = BeautifulSoup(response.content, 'xml')
+    servicecode = res.find('a:serviceCode').text
     message = res.find('Message').text
 
-    return render(request, 'tunduk_app/response.html', {'response': message})
+    return render(request, 'tunduk_app/response.html', {'response': message, 'servicecode': servicecode})
 
-def InitializeRequestForPermission():
+def InitializeRequestForPermission(pin, phone_number, birth_date, issued_date):
     data = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xro="http://x-road.eu/xsd/xroad.xsd" xmlns:iden="http://x-road.eu/xsd/identifiers" xmlns:prod="http://tunduk-sf.x-road.fi/producer">
    <soapenv:Header>
-      <xro:userId> fc12b8d1-dc09-49f1-95f7-911bb2f97cc0</xro:userId>
+      <xro:userId>b59fa801-8456-4577-8b33-8b99fa52317d</xro:userId>
       <xro:service iden:objectType="SERVICE">
          <iden:xRoadInstance>central-server</iden:xRoadInstance>
          <iden:memberClass>GOV</iden:memberClass>
@@ -55,24 +73,24 @@ def InitializeRequestForPermission():
    </soapenv:Header>
    <soapenv:Body>
       <prod:InitializeRequestForPermission>
-         <prod:Pin>11111111111111</prod:Pin>
-         <prod:PhoneNumber>+996700856315</prod:PhoneNumber>
-         <prod:LastName>Тестов</prod:LastName>
-         <prod:FirstName>Тест</prod:FirstName>
-         <prod:Patronymic>Тестович</prod:Patronymic>
-         <prod:OrganizationId> fc12b8d1-dc09-49f1-95f7-911bb2f97cc0</prod:OrganizationId>
+         <prod:Pin>%s</prod:Pin>
+         <prod:PhoneNumber>%s</prod:PhoneNumber>
+         <prod:LastName></prod:LastName>
+         <prod:FirstName></prod:FirstName>
+         <prod:Patronymic></prod:Patronymic>
+         <prod:OrganizationId></prod:OrganizationId>
          <prod:EndDate>2021-06-01</prod:EndDate>
          <prod:SignedCmsAsBase64></prod:SignedCmsAsBase64>
-         <prod:BirthDate>1999-12-21</prod:BirthDate>
-         <prod:PassportAddress>тест</prod:PassportAddress>
-         <prod:FactAddress>тест</prod:FactAddress>
-         <prod:PassportNumberAndSeries>ID123321</prod:PassportNumberAndSeries>
-         <prod:PassportIssuedDate>2015-01-01</prod:PassportIssuedDate>
-         <prod:PassportIssuedBy>asdwa</prod:PassportIssuedBy>
-         <prod:Email>doolotbekuulu00@gmail.com</prod:Email>
+         <prod:BirthDate>%s</prod:BirthDate>
+         <prod:PassportAddress></prod:PassportAddress>
+         <prod:FactAddress></prod:FactAddress>
+         <prod:PassportNumberAndSeries></prod:PassportNumberAndSeries>
+         <prod:PassportIssuedDate>%s</prod:PassportIssuedDate>
+         <prod:PassportIssuedBy></prod:PassportIssuedBy>
+         <prod:Email></prod:Email>
       </prod:InitializeRequestForPermission>
    </soapenv:Body>
-</soapenv:Envelope>"""
+</soapenv:Envelope>""" % (pin, phone_number, birth_date, issued_date)
 
     return data
 

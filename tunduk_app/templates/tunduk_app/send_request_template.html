@@ -1,0 +1,54 @@
+{% extends 'tunduk_app/wrapper.html' %}
+{% load static %}
+{% block content %}
+
+<div class="div_format">
+    <p></p>
+    <form action="{% url 'send_request' %}" method="get">
+    {% csrf_token %}
+
+    <p>Вид запроса:<Br>
+      <!--<label for="type_request_field">Вид запроса:</label>-->
+      <select name="type_request" class="select-css" id='type_request_field' required>
+      <!--<option disabled="" selected="">Выберите вид запроса</option>-->
+      <option value="1" selected='selected'>Разрешение на получение персональных данных</option>
+      <option value="2">Подтверждение разрешения на получение персональных данных</option>
+      <option value="3">Информация о начислениях страховых взносов застрахованного лица</option>
+      <option value="4">Информация о получателе пенсии</option>
+      <option value="5">Отзыв разрешения на получение персональных данных</option>
+      <option value="6">Подтверждение отзыва разрешения на получение персональных данных</option>
+      </select></p>
+
+      <div id="code_field_div">
+      <p>Код подтверждения:<Br>
+      <input placeholder="Введите SMS код" name="code" class="btn-css" id="code_field"></p>
+      </div>
+
+      <div id="request_id_field_div">
+      <p>RequestId:<Br>
+      <input placeholder="Введите полученный RequestId" name="requestid" class="btn-css" id="request_id_field" style="width: 300px;"></p>
+      </div>
+
+      <div id="pin_field_div">
+      <p>ИНН:<Br>
+      <input placeholder="Введите ИНН клиента" name="pin" type="number" maxlength="12" class="btn-css" required></p>
+      </div>
+
+      <div id="phone_number_field_div">
+      <p>Номер телефона:<Br>
+      <input placeholder="+996ХХХХХХХХХ" id="phone_number_field" class="btn-css" name="phone_number" required></p>
+      </div>
+
+      <div id="birth_date_field_div">
+      <p>Дата рождения:<Br>
+      <input type="date" id="date" name="birth_date" class="btn-css" id="birth_date_field" required/></p>
+      </div>
+
+      <div id="issued_date_field_div">
+      <p>Дата окончания действия паспорта:<Br>
+      <input type="date" id="issued_date_field" name="issued_date" class="btn-css" required/></p>
+      </div>
+
+      <p><button type="submit" class="btn-css">Отправить (OK)</button></p></form></div>
+
+{% endblock %}

@@ -19,5 +19,7 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name = 'index'),
-    path('test_request', views.test_request, name = 'test_request'),
+    #path('test_request', views.test_request, name = 'test_request'),
+    path('send_request_template/', views.send_request_template, name = 'send_request_template'),
+    path('send_request/', views.send_request, name = 'send_request'),
 ]

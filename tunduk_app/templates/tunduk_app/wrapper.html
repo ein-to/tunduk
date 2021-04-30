@@ -7,11 +7,16 @@
   <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
   <script type="text/javascript" src="{% static 'tunduk_app/js/dropdown.js' %}"></script>
   <script type="text/javascript" src="{% static 'bootstrap/js/jquery.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'bootstrap/css/Login-Form-Dark.css' %}" />
   <title>Changan-Tunduk service</title>
  </head>
  <body>
    <header>
      <a href="{% url 'index' %}"><img src="{% static 'bootstrap/img/logo_rus2.png' %}"></a>
+     {% if user.is_authenticated %}
+      <div class="logout">
+      <a href="{% url 'logout_request' %}" class="btn btn-secondary">Выйти</a></div>
+     {% endif %}
      <nav>
         <ul class="nav">
           <!--<li><a href="/os" class="icon home"><span>Home</span></a></li>-->

@@ -1,14 +1,40 @@
-{% extends 'tunduk_app/wrapper.html' %}
 {% load static %}
-{% block content %}
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <style>
+  .div_format {
+    width: 80%;
+    margin-left: 10%;
+    margin-bottom: 50px;
+  }
+  .table1 td {
+    border: 1px solid black;
+    text-align: center;
+    width: 520px;
 
+  }
+  .table1 th {
+    border: 1px solid black;
+    text-align: center;
+    width: 520px;
+    font-weight: bold;
+    /*font-weight: bold;*/
+  }
+  .table1 {
+    border-spacing:0px;
+    border-collapse: collapse;
+  }
+  </style>
+</head>
+<body>
 <div class="div_format">
+
   {% for i in content %}
     {% if i.head.servicecode == 'GetPersonalAccountInfoWithSumInfo' %}
     <h3>Данные из личных страховых счетов застрахованного лица СФ КР</h3>
       {% if i.head %}
         <p>Источник:            {{ i.head.issuer }}</p>
-        <p>Дата:            {{ i.head.date_time }}</p>
         <p>Фамилия:  {{ i.head.last_name }}</p>
         <p>Имя:  {{ i.head.name }}</p>
         <p>Отчество:  {{ i.head.patronymic }}</p>
@@ -35,13 +61,13 @@
       {% endif %}
     {% endif %}
   {% endfor %}
-
-{% for i in content %}
-
-{% endfor %}
 </table>
-<br>
-<p><a class="btn-css" href="{% url 'pdf' %}">Сохранить PDF</a></p>
+{% for i in content %}
+  {% if i.head.employee_name %}
+  <br>
+  <p>Исполнитель:  {{ i.head.employee_name }}</p>
+  {% endif %}
+{% endfor %}
 </div>
-
-{% endblock %}
+</body>
+</html>

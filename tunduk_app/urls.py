@@ -22,4 +22,7 @@ urlpatterns = [
     #path('test_request', views.test_request, name = 'test_request'),
     path('send_request_template/', views.send_request_template, name = 'send_request_template'),
     path('send_request/', views.send_request, name = 'send_request'),
+    path('pdf/', views.pdf, name = 'pdf'),
+    path('logout_request/', views.logout_request, name = 'logout_request'),
+    path('login/', views.user_login, name = 'user_login'),
 ]

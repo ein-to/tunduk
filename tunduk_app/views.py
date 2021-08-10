@@ -10,7 +10,7 @@ import os
 from .forms import LoginForm
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 # Create your views here.
 @csrf_exempt
@@ -56,13 +56,15 @@ def send_request(request):
         Header = {'Content-type': 'text/xml; charset=UTF-8'}
         type_request = request.GET.get('type_request')
         date_time = datetime.now()
+        end_date = date_time + timedelta(30)
         date_time = date_time.strftime("%Y-%m-%d")
+        end_date = end_date.strftime("%Y-%m-%d")
         if type_request == '1':
             pin = request.GET.get('pin')
             phone_number = request.GET.get('phone_number')
             birth_date = request.GET.get('birth_date')
             issued_date = request.GET.get('issued_date')
-            data = InitializeRequestForPermission(pin, phone_number, birth_date, issued_date)
+            data = InitializeRequestForPermission(pin, phone_number, birth_date, issued_date, end_date)
         if type_request == '3':
             pin = request.GET.get('pin')
             data = GetPersonalAccountInfoWithSumInfo(pin)
@@ -155,7 +157,7 @@ def InitializeRequestForPermission(pin, phone_number, birth_date, issued_date):
          <prod:FirstName></prod:FirstName>
          <prod:Patronymic></prod:Patronymic>
          <prod:OrganizationId></prod:OrganizationId>
-         <prod:EndDate>2021-06-01</prod:EndDate>
+         <prod:EndDate>%s</prod:EndDate>
          <prod:SignedCmsAsBase64></prod:SignedCmsAsBase64>
          <prod:BirthDate>%s</prod:BirthDate>
          <prod:PassportAddress></prod:PassportAddress>
@@ -166,7 +168,7 @@ def InitializeRequestForPermission(pin, phone_number, birth_date, issued_date):
          <prod:Email></prod:Email>
       </prod:InitializeRequestForPermission>
    </soapenv:Body>
-</soapenv:Envelope>""" % (pin, phone_number, birth_date, issued_date)
+</soapenv:Envelope>""" % (pin, phone_number, end_date, birth_date, issued_date)
 
     return data
 

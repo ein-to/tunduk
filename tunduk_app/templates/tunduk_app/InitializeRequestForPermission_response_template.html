@@ -1,0 +1,14 @@
+{% extends 'tunduk_app/wrapper.html' %}
+{% load static %}
+{% block content %}
+
+<div class="div_format">
+  {{ message }}
+  {% if message_otp %}
+    <p>RequestId: {{ requestid }}<i>Необходимо скопировать</i></p>
+    <p>{{ message_otp }}</p>
+    <p><a class="btn-css" href="{% url 'send_request_template' %}">Перейти на страницу подтверждения</a></p>
+  {{ endif}}
+</div>
+
+{% endblock %}

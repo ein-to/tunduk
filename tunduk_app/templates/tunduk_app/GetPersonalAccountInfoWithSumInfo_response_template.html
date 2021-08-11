@@ -4,7 +4,6 @@
 
 <div class="div_format">
   {% for i in content %}
-    {% if i.head.servicecode == 'GetPersonalAccountInfoWithSumInfo' %}
     <h3>Данные из личных страховых счетов застрахованного лица СФ КР</h3>
       {% if i.head %}
         <p>Источник:            {{ i.head.issuer }}</p>
@@ -32,7 +31,6 @@
                <td>{{ i.salary }}</td>
              </tr>
          {% endfor %}
-      {% endif %}
     {% endif %}
   {% endfor %}
 

@@ -59,44 +59,75 @@ def send_request(request):
         end_date = date_time + timedelta(30)
         date_time = date_time.strftime("%Y-%m-%d")
         end_date = end_date.strftime("%Y-%m-%d")
+        content = []
         if type_request == '1':
             pin = request.GET.get('pin')
             phone_number = request.GET.get('phone_number')
             birth_date = request.GET.get('birth_date')
             issued_date = request.GET.get('issued_date')
             data = InitializeRequestForPermission(pin, phone_number, birth_date, issued_date, end_date)
+            response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
+            res = BeautifulSoup(response.content, 'xml')
+            operation_result = res.find('OperationResult').text
+            otp_required = res.find('OneTimePasswordRequired').text
+            message = res.find('Message').text
+            if operation_result == 'false':
+                return render(request, 'tunduk_app/InitializeRequestForPermission_response_template.html', {'message': message})
+            if operation_result == 'true':
+                requestid = res.find('RequestId').text
+                if otp_required == 'true':
+                    message_otp = 'Код отправлен по SMS'
+                else:
+                    message_otp = 'Код подтверждения не требуется'
+                return render(request, 'tunduk_app/InitializeRequestForPermission_response_template.html', {'message': message,
+                                'requestid': requestid, 'message_otp': message_otp})
+        if type_request == '2':
+            requestid = request.GET.get('requestid')
+            code = request.GET.get('code')
+            data = SendConfirmationCodeForPermission(requestid, code)
+            response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
+            res = BeautifulSoup(response.content, 'xml')
+            operation_result = res.find('OperationResult').text
+            message = res.find('Message').text
+            if operation_result == 'false':
+                return render(request, 'tunduk_app/SendConfirmationCodeForPermission_response_template.html', {'message': message})
+            if operation_result == 'true':
+                permissionid = res.find('PermissionId').text
+                if requestid == permissionid:
+                    message_new = 'RequestId совпадает с PermissionId. Разрешение получено.'
+                else:
+                    message_new = 'RequestId не совпадает с PermissionId. Разрешение не получено.'
+                return render(request, 'tunduk_app/SendConfirmationCodeForPermission_response_template.html', {'message': message, 'message_new': message_new})
         if type_request == '3':
             pin = request.GET.get('pin')
             data = GetPersonalAccountInfoWithSumInfo(pin)
+            response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
+            employee_name = request.user
+            res = BeautifulSoup(response.content, 'xml')
+            pin = res.find('PIN').text
+            name = res.find('FirstName').text
+            last_name = res.find('LastName').text
+            patronymic = res.find('Patronymic').text
+            issuer = res.find('Issuer').text
+            content_part = dict(head={'name': name, 'last_name': last_name, 'patronymic': patronymic, 'pin': pin, 'date_time': date_time,
+                                'issuer': issuer, 'employee_name': employee_name})
+            content.append(content_part)
+            operation_result = res.find('OperationResult').text
+            if operation_result == 'false':
+                 message = res.find('Message').text
+                 cont = {'message': message}
+                 content.append(cont)
+            if operation_result == 'true':
+                name = res.find('FirstName').text
+                for i in res.find_all('WorkPeriodWithSumDto'):
+                    cont = {'payer': i.Payer.string, 'salary': i.Salary.string, 'inn': i.INN.string,
+                            'numsf': i.NumSF.string, 'date_begin': i.DateBegin.string, 'date_end': i.DateEnd.string}
+                    content.append(cont)
+            return render(request, 'tunduk_app/GetPersonalAccountInfoWithSumInfo_response_template.html', {'content': content})
         if type_request == '4':
             pin = request.GET.get('pin')
             data = GetPensionInfoWithSum(pin)
 
-        response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
-
-        content = []
-        employee_name = request.user
-        res = BeautifulSoup(response.content, 'xml')
-        servicecode = res.find('a:serviceCode').text
-        pin = res.find('PIN').text
-        name = res.find('FirstName').text
-        last_name = res.find('LastName').text
-        patronymic = res.find('Patronymic').text
-        issuer = res.find('Issuer').text
-        cont1 = dict(head={'name': name, 'last_name': last_name, 'patronymic': patronymic, 'pin': pin, 'date_time': date_time,
-                            'issuer': issuer, 'servicecode': servicecode, 'employee_name': employee_name})
-        content.append(cont1)
-        operation_result = res.find('OperationResult').text
-        if operation_result == 'false':
-             message = res.find('Message').text
-             cont = {'message': message}
-             content.append(cont)
-        if operation_result == 'true':
-            name = res.find('FirstName').text
-            for i in res.find_all('WorkPeriodWithSumDto'):
-                cont = {'payer': i.Payer.string, 'salary': i.Salary.string, 'inn': i.INN.string,
-                        'numsf': i.NumSF.string, 'date_begin': i.DateBegin.string, 'date_end': i.DateEnd.string}
-                content.append(cont)
 
         global pdf_content
         pdf_content = content
@@ -228,4 +259,34 @@ def GetPensionInfoWithSum(pin):
       </prod:GetPensionInfoWithSum>
    </soapenv:Body>
 </soapenv:Envelope>""" % (pin)
+    return data
+
+def SendConfirmationCodeForPermission(requestid, code):
+    data = """<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xro="http://x-road.eu/xsd/xroad.xsd" xmlns:iden="http://x-road.eu/xsd/identifiers" xmlns:prod="http://tunduk-sf.x-road.fi/producer">
+   <soapenv:Header>
+      <xro:userId>b59fa801-8456-4577-8b33-8b99fa52317d</xro:userId>
+      <xro:service iden:objectType="SERVICE">
+         <iden:xRoadInstance>central-server</iden:xRoadInstance>
+         <iden:memberClass>GOV</iden:memberClass>
+         <iden:memberCode>70000003</iden:memberCode>
+         <iden:subsystemCode>sf-personal-data</iden:subsystemCode>
+         <iden:serviceCode>SendConfirmationCodeForPermission</iden:serviceCode>
+      </xro:service>
+      <xro:protocolVersion>4.0</xro:protocolVersion>
+      <xro:issue>?</xro:issue>
+      <xro:id>?</xro:id>
+      <xro:client iden:objectType="SUBSYSTEM">
+         <iden:xRoadInstance>central-server</iden:xRoadInstance>
+         <iden:memberClass># COM: </iden:memberClass>
+         <iden:memberCode>60000006</iden:memberCode>
+         <iden:subsystemCode>changan-service</iden:subsystemCode>
+      </xro:client>
+   </soapenv:Header>
+   <soapenv:Body>
+      <prod:SendConfirmationCodeForPermission>
+         <prod:RequestId>%s</prod:RequestId>
+         <prod:Code>%s</prod:Code>
+      </prod:SendConfirmationCodeForPermission>
+   </soapenv:Body>
+</soapenv:Envelope>""" % (requestid, code)
     return data

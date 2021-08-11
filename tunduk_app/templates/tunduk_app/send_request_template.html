@@ -39,9 +39,14 @@
       <input placeholder="+996ХХХХХХХХХ" id="phone_number_field" class="btn-css" name="phone_number"></p>
       </div>
 
+      <div id="perm_issued_date_field_div">
+      <p>Дата окончания разрешения (минимум 1 месяц):<Br>
+      <input type="date" name="perm_issued_date" class="btn-css" id="perm_issued_date_field"></p>
+      </div>
+
       <div id="birth_date_field_div">
       <p>Дата рождения:<Br>
-      <input type="date" id="date" name="birth_date" class="btn-css" id="birth_date_field"></p>
+      <input type="date" name="birth_date" class="btn-css" id="birth_date_field"></p>
       </div>
 
       <div id="issued_date_field_div">
@@ -49,6 +54,6 @@
       <input type="date" id="issued_date_field" name="issued_date" class="btn-css"></p>
       </div>
 
-      <p><button type="submit" class="btn-css">Отправить (OK)</button></p></form></div>
+      <p><button type="submit" class="btn-css" id="submit_form">Отправить (OK)</button></p></form></div>
 
 {% endblock %}

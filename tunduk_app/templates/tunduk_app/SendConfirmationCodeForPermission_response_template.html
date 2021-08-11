@@ -1,0 +1,12 @@
+{% extends 'tunduk_app/wrapper.html' %}
+{% load static %}
+{% block content %}
+
+<div class="div_format">
+  {{ message }}
+  {% if message_new %}
+    <p>{{ message_new }}</p>
+  {{ endif}}
+</div>
+
+{% endblock %}

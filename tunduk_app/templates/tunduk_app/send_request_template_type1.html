@@ -4,19 +4,15 @@
 
 <div class="div_format">
     <p></p>
-    <form action="{% url 'send_request' %}" method="get">
+    <form action="{% url 'send_request' service_id %}" method="get">
     {% csrf_token %}
 
-    <p>Вид запроса:<Br>
-      <!--<label for="type_request_field">Вид запроса:</label>-->
+    <p>Тип запроса:<Br>
       <select name="type_request" class="select-css-1" id='type_request_field' required>
-      <!--<option disabled="" selected="">Выберите вид запроса</option>-->
-      <option value="1" selected='selected'>Разрешение на получение персональных данных</option>
-      <option value="2">Подтверждение разрешения на получение персональных данных</option>
-      <option value="3">Информация о начислениях страховых взносов застрахованного лица</option>
-      <option value="4">Информация о получателе пенсии</option>
-      <option value="5">Отзыв разрешения на получение персональных данных</option>
-      <option value="6">Подтверждение отзыва разрешения на получение персональных данных</option>
+      <option disabled="" selected="selected">Выберите тип запроса</option>
+      {% for request_type in request_types %}
+      <option value="{{ request_type.type_id }}">{{ request_type.name }}</option>
+      {% endfor %}
       </select></p>
 
       <div id="code_field_div">
@@ -54,6 +50,13 @@
       <input type="date" id="issued_date_field" name="issued_date" class="btn-css"></p>
       </div>
 
-      <p><button type="submit" class="btn-css" id="submit_form">Отправить (OK)</button></p></form></div>
+      <p><button type="submit" class="btn-css" id="submit_form" disabled>Отправить (OK)</button></p></form></div>
+
+<style>
+#code_field_div, #request_id_field_div, #pin_field_div, #phone_number_field_div,
+#perm_issued_date_field_div, #birth_date_field_div, #issued_date_field_div {
+  display: none;
+}
+</style>
 
 {% endblock %}

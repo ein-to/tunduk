@@ -23,8 +23,9 @@
           <li class="dropdown">
             <a href="/os" onclick="return false">Отправка запроса</a>
             <ul>
-              <li><a href="{% url 'send_request_template' %}">Социальный Фонд</a></li>
-              <li><a href="{% url 'index' %}">МВД</a></li>
+              {% for service_type in service_types %}
+              <li><a href="{% url 'send_request_template' service_type.service_id %}">{{ service_type.name }}</a></li>
+              {% endfor %}
             </ul>
           </li>
           <li class="dropdown">

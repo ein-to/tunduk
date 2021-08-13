@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import ldap
 from django_auth_ldap.config import LDAPSearch
+from .login_passwords import ldap_server_uri, ldap_user, ldap_search_param, ldap_user_password, secret_key, allowed_hosts
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_dnh^s47yddsm-3h2kc$(jci7o!y)8@g$ok4hizgxvqci%l=#-'
+SECRET_KEY = secret_key
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['10.10.3.61', '192.168.2.43','127.0.0.1']
+ALLOWED_HOSTS = allowed_hosts
 
 
 # Application definition
@@ -66,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'tunduk_app.custom_context_processor.service_type',
             ],
         },
     },
@@ -110,10 +112,10 @@ AUTHENTICATION_BACKENDS = [
 
 AUTH_LDAP_START_TLS = False
 AUTH_LDAP_ALWAYS_UPDATE_USER = True
-AUTH_LDAP_SERVER_URI = 'ldap://10.10.0.2'
-AUTH_LDAP_BIND_DN = 'admin'
-AUTH_LDAP_BIND_PASSWORD = 'qweasd!23'
-AUTH_LDAP_USER_SEARCH = LDAPSearch('DC=changan,DC=kg', ldap.SCOPE_SUBTREE, '(sAMAccountName=%(user)s)')
+AUTH_LDAP_SERVER_URI = ldap_server_uri
+AUTH_LDAP_BIND_DN = ldap_user
+AUTH_LDAP_BIND_PASSWORD = ldap_user_password
+AUTH_LDAP_USER_SEARCH = LDAPSearch(ldap_search_param, ldap.SCOPE_SUBTREE, '(sAMAccountName=%(user)s)')
 AUTH_LDAP_CONNECTION_OPTIONS = {
     ldap.OPT_REFERRALS: 0,
 }

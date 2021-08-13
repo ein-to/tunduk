@@ -1,3 +1,5 @@
 *.xml
 *.crt
 *.key
+login_passwords.py
+/migrations

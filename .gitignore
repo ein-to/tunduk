@@ -3,3 +3,4 @@
 *.key
 login_passwords.py
 /migrations
+*.sqlite3

@@ -4,6 +4,10 @@ from django.db import models
 class Service(models.Model):
     service_id = models.IntegerField(unique=True, primary_key=True)
     name = models.CharField(max_length=120)
+    userid = models.CharField(max_length=120, null=True)
+    type = models.CharField(max_length=120, null=True)
+    membercode = models.IntegerField(null=True)
+    subsystemcode = models.CharField(max_length=120, null=True)
 
     def __str__(self):
         return self.name
@@ -13,6 +17,7 @@ class Request_type(models.Model):
     service = models.ForeignKey(Service, on_delete=models.CASCADE)
     type_id = models.IntegerField()
     name = models.CharField(max_length=120)
+    method_name = models.CharField(max_length=120, null=True)
 
     class Meta:
         unique_together = ['service', 'type_id']

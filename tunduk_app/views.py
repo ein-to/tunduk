@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from datetime import datetime, date, timedelta
 from .models import Request_type, Service, Requests
-from .requests import InitializeRequestForPermission, GetPersonalAccountInfoWithSumInfo, GetPensionInfoWithSum, SendConfirmationCodeForPermission
+from .requests_sf import InitializeRequestForPermission, GetPersonalAccountInfoWithSumInfo, GetPensionInfoWithSum, SendConfirmationCodeForPermission
 
 # Create your views here.
 @csrf_exempt
@@ -77,7 +77,7 @@ def send_request_sf(request):
             phone_number = request.GET.get('phone_number')
             birth_date = request.GET.get('birth_date')
             issued_date = request.GET.get('issued_date')
-            data = InitializeRequestForPermission(pin, phone_number, birth_date, issued_date, end_date)
+            data = InitializeRequestForPermission(pin, phone_number, birth_date, issued_date, end_date, type_request)
             response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
             res = BeautifulSoup(response.content, 'xml')
             operation_result = res.find('OperationResult').text
@@ -96,7 +96,7 @@ def send_request_sf(request):
         if type_request == '2':
             requestid = request.GET.get('requestid')
             code = request.GET.get('code')
-            data = SendConfirmationCodeForPermission(requestid, code)
+            data = SendConfirmationCodeForPermission(requestid, code, type_request)
             response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
             res = BeautifulSoup(response.content, 'xml')
             operation_result = res.find('OperationResult').text
@@ -112,7 +112,7 @@ def send_request_sf(request):
                 return render(request, 'tunduk_app/SendConfirmationCodeForPermission_response_template.html', {'message': message, 'message_new': message_new})
         if type_request == '3':
             pin = request.GET.get('pin')
-            data = GetPersonalAccountInfoWithSumInfo(pin)
+            data = GetPersonalAccountInfoWithSumInfo(pin, type_request)
             response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
             employee_name = request.user
             res = BeautifulSoup(response.content, 'xml')
@@ -138,7 +138,7 @@ def send_request_sf(request):
             return render(request, 'tunduk_app/GetPersonalAccountInfoWithSumInfo_response_template.html', {'content': content})
         if type_request == '4':
             pin = request.GET.get('pin')
-            data = GetPensionInfoWithSum(pin)
+            data = GetPensionInfoWithSum(pin, type_request)
 
 
         global pdf_content

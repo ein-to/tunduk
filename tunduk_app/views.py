@@ -13,6 +13,7 @@ from django.contrib.auth import authenticate, login, logout
 from datetime import datetime, date, timedelta
 from .models import Request_type, Service, Requests
 from .requests_sf import InitializeRequestForPermission, GetPersonalAccountInfoWithSumInfo, GetPensionInfoWithSum, SendConfirmationCodeForPermission
+from docxtpl import DocxTemplate
 
 # Create your views here.
 @csrf_exempt
@@ -78,6 +79,8 @@ def send_request_sf(request):
             birth_date = request.GET.get('birth_date')
             issued_date = request.GET.get('issued_date')
             data = InitializeRequestForPermission(pin, phone_number, birth_date, issued_date, end_date, type_request)
+            doc_name = InitReqPermDoc(pin,phone_number,birth_date)
+            print(doc_name)
             response = requests.post('http://31.186.53.85', headers=Header, data=data, verify=False)
             res = BeautifulSoup(response.content, 'xml')
             operation_result = res.find('OperationResult').text
@@ -139,7 +142,7 @@ def send_request_sf(request):
         if type_request == '4':
             pin = request.GET.get('pin')
             data = GetPensionInfoWithSum(pin, type_request)
-
+            #нужно дописать код
 
         global pdf_content
         pdf_content = content
@@ -168,3 +171,13 @@ def pdf(request):
         return user_login(request)
 
     return response
+
+def InitReqPermDoc(pin,phone_number,birth_date):
+    data = {'pin':pin, 'phone_number':phone_number, 'birth_date':birth_date}
+    doc = DocxTemplate('docs_templates\InitReqPerm.docx')
+    doc.render(data)
+    #resp = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    #resp['Content-Disposition'] = 'attachment; filename=InitReqPerm.docx'
+    doc_name = 'InitReqPerm%s.docx' % pin
+    doc.save(('docs_generated\%s') % doc_name)
+    return doc_name
